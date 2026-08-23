@@ -123,9 +123,13 @@ for k in range(NM):
     ex='+'.join(S_Nm('F',n,M[k]) for n in IT); wt='+'.join(S_Nm('E',n,M[k]) for n in IT)
     put(w8,r,2+k,f"=IFERROR(({EXM(k)}-({ex}))/(('{A2}'!D{D2+k})-({wt})),\"\")",UNIT)
 r+=1
-put(w8,r,1,'전체 단가 지수(2025.01=100)',bold=True)
-for k in range(NM): put(w8,r,2+k,f'=B{U8}*0+{L(2+k)}{U8}/$B${U8}*100','0.0')
-U8E=r
+IDX_BASE=r
+for i,nm in enumerate(['전체 수출 단가 지수','IT부품 단가 지수','IT제품 단가 지수','IT 제외 단가 지수']):
+    src={0:U8,1:U8+2,2:U8+1,3:U8+3}[i]
+    put(w8,r,1,nm+' (2025.01=100)',bold=True)
+    for k in range(NM): put(w8,r,2+k,f'=IFERROR({L(2+k)}{src}/$B${src}*100,"")','0.0')
+    r+=1
+U8E=r-1
 w8.freeze_panes='B6'
 
 # ══════════════════════════════════════════════════════════════════
@@ -627,9 +631,9 @@ b2.set_categories(Reference(w15,min_col=1,min_row=GB,max_row=GB_E))
 add15(b2,f'A{CT15+26}','2. 주요 품목의 물량효과·가격효과',h=14,ylab='금액(천달러)')
 # 3. 단가 추이
 l3=LineChart()
-l3.add_data(Reference(w8,min_col=1,max_col=1+NM,min_row=U8,max_row=U8+3),from_rows=True,titles_from_data=True)
+l3.add_data(Reference(w8,min_col=1,max_col=1+NM,min_row=IDX_BASE,max_row=U8E),from_rows=True,titles_from_data=True)
 l3.set_categories(Reference(w8,min_col=2,max_col=1+NM,min_row=U8H))
-add15(l3,f'A{CT15+54}','3. 월별 수출단가 추이 — 전체 · IT부품 · IT제품 · IT 제외',ylab='천달러/톤')
+add15(l3,f'A{CT15+54}','3. 월별 수출단가 지수 (2025.01 = 100) — 전체 · IT부품 · IT제품 · IT 제외',ylab='지수(2025.01=100)')
 # 4. 집중도
 l4=LineChart()
 l4.add_data(Reference(w10,min_col=2,min_row=C10-1,max_row=E10),titles_from_data=True)
